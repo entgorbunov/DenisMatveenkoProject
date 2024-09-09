@@ -12,3 +12,5 @@
 
 # Игнорировать временные файлы
 *.tmp
+common/target
+service/target
