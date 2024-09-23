@@ -1,4 +1,4 @@
-package com.dmDev;
+package com.dmdev;
 
 /**
  * Hello world!

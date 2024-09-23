@@ -1,11 +1,11 @@
 package serviceTests.entity;
 
-import com.dmDev.entity.EventEntity;
-import com.dmDev.entity.EventRegistrationEntity;
-import com.dmDev.entity.EventStatus;
-import com.dmDev.entity.LocationEntity;
-import com.dmDev.entity.UserEntity;
-import com.dmDev.util.HibernateUtil;
+import com.dmdev.entity.EventEntity;
+import com.dmdev.entity.EventRegistrationEntity;
+import com.dmdev.entity.EventStatus;
+import com.dmdev.entity.LocationEntity;
+import com.dmdev.entity.UserEntity;
+import com.dmdev.util.HibernateUtil;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;

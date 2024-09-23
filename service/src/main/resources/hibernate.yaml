@@ -1,0 +1,22 @@
+hibernate:
+  connection:
+    driver_class: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5432/denis-matveenko-db
+    username: postgres
+    password: s9td3ixh
+    provider_class: org.hibernate.hikaricp.internal.HikariCPConnectionProvider
+  jdbc:
+    show_sql: true
+    format_sql: true
+    hbm2ddl:
+      auto: validate
+  hikari:
+    minimumIdle: 5
+    maximumPoolSize: 10
+    idleTimeout: 30000
+  cache:
+    use_second_level_cache: false
+  non_contextual_lob_creation: true
+  type:
+    preferred_enum_type: string
+  physical_naming_strategy: com.dmdev.util.CamelCaseNamingStrategy

@@ -1,4 +1,4 @@
-package com.dmDev.entity;
+package com.dmdev.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -31,10 +31,10 @@ public class EventEntity {
     @Column(name = "name", nullable = false)
     private String name;
 
-    @Column(name = "owner_id", nullable = false)
+    @Column(name = "ownerId", nullable = false)
     private UUID ownerId;
 
-    @Column(name = "max_places", nullable = false)
+    @Column(name = "maxPlaces", nullable = false)
     private int maxPlaces;
 
     @Column(name = "date", nullable = false)
@@ -46,7 +46,7 @@ public class EventEntity {
     @Column(name = "duration", nullable = false)
     private int duration;
 
-    @Column(name = "location_id", nullable = false)
+    @Column(name = "locationId", nullable = false)
     private UUID locationId;
 
     @Enumerated(EnumType.STRING)

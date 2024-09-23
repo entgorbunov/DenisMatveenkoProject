@@ -1,4 +1,4 @@
-package com.dmDev.entity;
+package com.dmdev.entity;
 
 public enum EventStatus {
 

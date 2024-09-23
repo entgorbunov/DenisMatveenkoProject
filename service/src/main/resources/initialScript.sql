@@ -3,16 +3,16 @@ CREATE TABLE users (
                        id UUID PRIMARY KEY,
                        email VARCHAR(255) NOT NULL UNIQUE,
                        age INTEGER,
-                       role VARCHAR(50),
-                       password_hash VARCHAR(255)
+                       role VARCHAR(50) NOT NULL ,
+                       password VARCHAR(255) NOT NULL
 );
 
 CREATE TABLE locations (
                            id UUID PRIMARY KEY,
-                           name VARCHAR(255),
-                           address TEXT,
-                           capacity BIGINT,
-                           description TEXT
+                           name VARCHAR(255) NOT NULL,
+                           address TEXT NOT NULL,
+                           capacity BIGINT NOT NULL ,
+                           description TEXT NOT NULL
 );
 
 CREATE TABLE events (
@@ -24,7 +24,7 @@ CREATE TABLE events (
                         cost INTEGER NOT NULL,
                         duration INTEGER NOT NULL,
                         location_id UUID NOT NULL,
-                        status VARCHAR(50) NOT NULL CHECK (status IN ('WAIT_START', 'STARTED', 'CANCELLED', 'FINISHED')),
+                        status VARCHAR(50) NOT NULL,
                         FOREIGN KEY (owner_id) REFERENCES users(id),
                         FOREIGN KEY (location_id) REFERENCES locations(id)
 );
@@ -32,5 +32,8 @@ CREATE TABLE events (
 CREATE TABLE registrations (
                                id UUID PRIMARY KEY,
                                user_id UUID NOT NULL,
-                               FOREIGN KEY (user_id) REFERENCES users(id)
+                               event_id UUID NOT NULL,
+                               registration_date TIMESTAMP NOT NULL,
+                               FOREIGN KEY (user_id) REFERENCES users(id),
+                               FOREIGN KEY (event_id) REFERENCES events(id)
 );
