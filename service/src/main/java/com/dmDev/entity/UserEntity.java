@@ -32,10 +32,10 @@ public class UserEntity {
     private Integer age;
 
     @Column(name = "role")
-    private String role;
+    private UserRole role;
 
-    @Column(name = "passwordHash")
-    private String passwordHash;
+    @Column(name = "password")
+    private String password;
 
 }
 
