@@ -1,5 +1,6 @@
 package serviceTests.entity;
 
+
 import com.dmdev.entity.EventEntity;
 import com.dmdev.entity.EventRegistrationEntity;
 import com.dmdev.entity.EventStatus;
@@ -11,6 +12,7 @@ import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 
 import java.time.LocalDateTime;
@@ -20,7 +22,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class EntityMappingIT {
 
-    private SessionFactory sessionFactory;
+    private static SessionFactory sessionFactory;
 
     @BeforeAll
     void setUp() {
@@ -29,9 +31,11 @@ class EntityMappingIT {
 
     @AfterAll
     void tearDown() {
+
         HibernateUtil.shutdown();
     }
 
+    @Test
     void verifyEntityMapping() {
         LocationEntity location = createLocation();
         UserEntity user = createUser();
@@ -61,6 +65,7 @@ class EntityMappingIT {
             session.persist(event);
 
             registration.setUserId(user.getId());
+            registration.setEvent(event);
             session.persist(registration);
 
             transaction.commit();
@@ -103,8 +108,8 @@ class EntityMappingIT {
         UserEntity user = new UserEntity();
         user.setEmail("test@example.com");
         user.setAge(30);
-        user.setRole("USER");
-        user.setPasswordHash("hashedpassword");
+        user.setRole(com.dmdev.entity.UserRole.USER);
+        user.setPassword("hashedpassword");
         return user;
     }
 
@@ -124,6 +129,7 @@ class EntityMappingIT {
     private EventRegistrationEntity createRegistration(UserEntity user) {
         EventRegistrationEntity registration = new EventRegistrationEntity();
         registration.setUserId(user.getId());
+        registration.setRegistrationDate(LocalDateTime.now());
         return registration;
     }
 
@@ -145,8 +151,8 @@ class EntityMappingIT {
                 .extracting(UserEntity::getEmail,
                         UserEntity::getAge,
                         UserEntity::getRole,
-                        UserEntity::getPasswordHash)
-                .containsExactly("test@example.com", 30, "USER", "hashedpassword");
+                        UserEntity::getPassword)
+                .containsExactly("test@example.com", 30, com.dmdev.entity.UserRole.USER, "hashedpassword");
     }
 
     private void verifyEvent(Session session, EventEntity event) {
