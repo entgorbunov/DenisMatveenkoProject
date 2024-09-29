@@ -4,7 +4,6 @@ import com.dmdev.entity.EventEntity;
 import com.dmdev.entity.EventRegistrationEntity;
 import com.dmdev.entity.LocationEntity;
 import com.dmdev.entity.UserEntity;
-import lombok.Getter;
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.SessionFactory;
@@ -20,8 +19,14 @@ import java.util.Map;
 @Slf4j
 public class HibernateUtil {
 
-    @Getter
-    private static final SessionFactory sessionFactory = buildSessionFactory();
+    private static SessionFactory sessionFactory;
+
+    public static SessionFactory getSessionFactory() {
+        if (sessionFactory == null || sessionFactory.isClosed()) {
+            sessionFactory = buildSessionFactory();
+        }
+        return sessionFactory;
+    }
 
     private static SessionFactory buildSessionFactory() {
         try {
@@ -33,8 +38,9 @@ public class HibernateUtil {
                     .applySettings(configuration.getProperties())
                     .build();
 
+            SessionFactory factory = configuration.buildSessionFactory(serviceRegistry);
             log.info("SessionFactory создана успешно.");
-            return configuration.buildSessionFactory(serviceRegistry);
+            return factory;
         } catch (Exception ex) {
             log.error("Ошибка при создании начальной SessionFactory.", ex);
             throw new ExceptionInInitializerError(ex);
@@ -43,9 +49,12 @@ public class HibernateUtil {
 
     private static void configureHibernate(Configuration configuration) {
         Yaml yaml = new Yaml();
-        try (InputStream inputStream = HibernateUtil.class.getClassLoader().getResourceAsStream("hibernate.yaml")) {
+        String profile = System.getProperty("profile", "default");
+        String configFileName = profile.equals("test") ? "hibernate-test.yaml" : "hibernate.yaml";
+
+        try (InputStream inputStream = HibernateUtil.class.getClassLoader().getResourceAsStream(configFileName)) {
             if (inputStream == null) {
-                throw new IllegalArgumentException("hibernate.yaml не найден");
+                throw new IllegalArgumentException(configFileName + " не найден");
             }
             Map<String, Object> yamlMap = yaml.load(inputStream);
             Map<String, Object> hibernateConfig = (Map<String, Object>) yamlMap.get("hibernate");
@@ -60,8 +69,8 @@ public class HibernateUtil {
                 }
             }
         } catch (Exception ex) {
-            log.error("Ошибка при чтении конфигурации из hibernate.yaml", ex);
-            throw new RuntimeException("Ошибка при чтении конфигурации из hibernate.yaml", ex);
+            log.error("Ошибка при чтении конфигурации из " + configFileName, ex);
+            throw new RuntimeException("Ошибка при чтении конфигурации из " + configFileName, ex);
         }
     }
 

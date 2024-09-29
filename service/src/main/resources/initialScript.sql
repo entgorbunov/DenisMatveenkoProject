@@ -1,18 +1,17 @@
-
 CREATE TABLE users (
                        id UUID PRIMARY KEY,
                        email VARCHAR(255) NOT NULL UNIQUE,
-                       age INTEGER,
-                       role VARCHAR(50) NOT NULL ,
+                       age INTEGER NOT NULL,
+                       role VARCHAR(50) NOT NULL,
                        password VARCHAR(255) NOT NULL
 );
 
 CREATE TABLE locations (
                            id UUID PRIMARY KEY,
                            name VARCHAR(255) NOT NULL,
-                           address TEXT NOT NULL,
-                           capacity BIGINT NOT NULL ,
-                           description TEXT NOT NULL
+                           address TEXT,
+                           capacity BIGINT,
+                           description TEXT
 );
 
 CREATE TABLE events (

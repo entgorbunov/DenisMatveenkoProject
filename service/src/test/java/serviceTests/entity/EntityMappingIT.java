@@ -1,49 +1,26 @@
 package serviceTests.entity;
 
-
 import com.dmdev.entity.EventEntity;
 import com.dmdev.entity.EventRegistrationEntity;
 import com.dmdev.entity.EventStatus;
 import com.dmdev.entity.LocationEntity;
 import com.dmdev.entity.UserEntity;
-import com.dmdev.util.HibernateUtil;
-import org.hibernate.Session;
-import org.hibernate.SessionFactory;
-import org.hibernate.Transaction;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
 
 import java.time.LocalDateTime;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
-class EntityMappingIT {
-
-    private static SessionFactory sessionFactory;
-
-    @BeforeAll
-    void setUp() {
-        sessionFactory = HibernateUtil.getSessionFactory();
-    }
-
-    @AfterAll
-    void tearDown() {
-
-        HibernateUtil.shutdown();
-    }
+class EntityMappingIT extends BaseEntityTestIT {
 
     @Test
     void verifyEntityMapping() {
         LocationEntity location = createLocation();
         UserEntity user = createUser();
         EventEntity event = createEvent(user, location);
-        EventRegistrationEntity registration = createRegistration(user);
+        EventRegistrationEntity registration = createRegistration(user, event);
 
         persistEntities(location, user, event, registration);
-
         verifyPersistedEntities(location, user, event, registration);
     }
 
@@ -53,23 +30,19 @@ class EntityMappingIT {
             EventEntity event,
             EventRegistrationEntity registration
     ) {
-        try (Session session = sessionFactory.openSession()) {
-            Transaction transaction = session.beginTransaction();
+        session.persist(location);
+        session.persist(user);
+        session.flush();
 
-            session.persist(location);
-            session.persist(user);
-            session.flush();
+        event.setOwnerId(user.getId());
+        event.setLocationId(location.getId());
+        session.persist(event);
 
-            event.setOwnerId(user.getId());
-            event.setLocationId(location.getId());
-            session.persist(event);
+        registration.setUser(user);
+        registration.setEvent(event);
+        session.persist(registration);
 
-            registration.setUserId(user.getId());
-            registration.setEvent(event);
-            session.persist(registration);
-
-            transaction.commit();
-        }
+        session.getTransaction().commit();
     }
 
     private void verifyPersistedEntities(
@@ -78,21 +51,15 @@ class EntityMappingIT {
             EventEntity event,
             EventRegistrationEntity registration
     ) {
-        try (Session session = sessionFactory.openSession()) {
-            Transaction transaction = session.beginTransaction();
+        assertThat(location.getId()).isNotNull();
+        assertThat(user.getId()).isNotNull();
+        assertThat(event.getId()).isNotNull();
+        assertThat(registration.getId()).isNotNull();
 
-            assertThat(location.getId()).isNotNull();
-            assertThat(user.getId()).isNotNull();
-            assertThat(event.getId()).isNotNull();
-            assertThat(registration.getId()).isNotNull();
-
-            verifyLocation(session, location);
-            verifyUser(session, user);
-            verifyEvent(session, event);
-            verifyRegistration(session, registration);
-
-            transaction.rollback();
-        }
+        verifyLocation(location);
+        verifyUser(user);
+        verifyEvent(event);
+        verifyRegistration(registration);
     }
 
     private LocationEntity createLocation() {
@@ -126,15 +93,16 @@ class EntityMappingIT {
         return event;
     }
 
-    private EventRegistrationEntity createRegistration(UserEntity user) {
+    private EventRegistrationEntity createRegistration(UserEntity user, EventEntity event) {
         EventRegistrationEntity registration = new EventRegistrationEntity();
-        registration.setUserId(user.getId());
+        registration.setUser(user);
+        registration.setEvent(event);
         registration.setRegistrationDate(LocalDateTime.now());
         return registration;
     }
 
-    private void verifyLocation(Session session, LocationEntity location) {
-        LocationEntity retrievedLocation = session.get(LocationEntity.class, location.getId());
+    private void verifyLocation(LocationEntity location) {
+        LocationEntity retrievedLocation = session.find(LocationEntity.class, location.getId());
         assertThat(retrievedLocation)
                 .isNotNull()
                 .extracting(LocationEntity::getName,
@@ -144,7 +112,7 @@ class EntityMappingIT {
                 .containsExactly("Test Location", "123 Test St", 100L, "Test Description");
     }
 
-    private void verifyUser(Session session, UserEntity user) {
+    private void verifyUser(UserEntity user) {
         UserEntity retrievedUser = session.get(UserEntity.class, user.getId());
         assertThat(retrievedUser)
                 .isNotNull()
@@ -155,7 +123,7 @@ class EntityMappingIT {
                 .containsExactly("test@example.com", 30, com.dmdev.entity.UserRole.USER, "hashedpassword");
     }
 
-    private void verifyEvent(Session session, EventEntity event) {
+    private void verifyEvent(EventEntity event) {
         EventEntity retrievedEvent = session.get(EventEntity.class, event.getId());
         assertThat(retrievedEvent)
                 .isNotNull()
@@ -179,15 +147,12 @@ class EntityMappingIT {
                 );
     }
 
-    private void verifyRegistration(
-            Session session,
-            EventRegistrationEntity registration
-    ) {
-        EventRegistrationEntity retrievedRegistration = session.get(EventRegistrationEntity.class,
+    private void verifyRegistration(EventRegistrationEntity registration) {
+        EventRegistrationEntity retrievedRegistration = session.find(EventRegistrationEntity.class,
                 registration.getId());
         assertThat(retrievedRegistration)
                 .isNotNull()
-                .extracting(EventRegistrationEntity::getUserId)
-                .isEqualTo(registration.getUserId());
+                .extracting(EventRegistrationEntity::getUser)
+                .isEqualTo(registration.getUser());
     }
 }
