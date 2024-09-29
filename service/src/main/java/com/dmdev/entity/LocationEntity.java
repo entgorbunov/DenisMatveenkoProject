@@ -25,16 +25,16 @@ public class LocationEntity {
     @Column(name = "id", updatable = false, nullable = false)
     private UUID id;
 
-    @Column(name = "name")
+    @Column(name = "name", nullable = false)
     private String name;
 
-    @Column(name = "address")
+    @Column(name = "address", nullable = false)
     private String address;
 
-    @Column(name = "capacity")
+    @Column(name = "capacity", nullable = false)
     private Long capacity;
 
-    @Column(name = "description")
+    @Column(name = "description", nullable = false)
     private String description;
 
     }

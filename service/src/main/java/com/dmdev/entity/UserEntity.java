@@ -5,6 +5,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.Min;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -28,13 +29,14 @@ public class UserEntity {
     @Column(name = "email", unique = true, nullable = false )
     private String email;
 
-    @Column(name = "age")
+    @Min(18)
+    @Column(name = "age", nullable = false)
     private Integer age;
 
-    @Column(name = "role")
+    @Column(name = "role", nullable = false)
     private UserRole role;
 
-    @Column(name = "password")
+    @Column(name = "password", nullable = false)
     private String password;
 
 }
